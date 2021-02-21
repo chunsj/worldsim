@@ -1,0 +1,25 @@
+;;;; File: monitor.def
+;;;; SCCS Version: %W%
+;;;; Contains: Monitor initial definition file.
+;;;; Author: Richard Kirby (rbk)
+;;;; Created: Fri Feb 14 17:03:25 1992
+;;;; Updated: Wed Oct 28 12:19:52 1992
+;;;; Release Version: %Y%
+;;;; Copyright: (c) 1992, AIAI, University of Edinburgh
+;;;; This material may be reproduced by or for the U.S. Government pursuant
+;;;; to the copyright license under the clause at DFARS 252.227-7032
+;;;; (June 1975) -- Rights in Technical Data and Computer Software (Foreign).
+
+;;;; Available Monitors
+(:GOP :QA :AGENDAIN :KPREADY :TRIGGERSIN :DBIN :LEFTIN :AM :KP :DM :IM
+ :ADS :TGM :PSV :TF :KP-1)
+;;;; Available Levels
+(:RAW-LISP :DEBUG :DETAILED :ONE-LINER :MINIMUM :NONE :OFF)
+;;;; Defaults
+(:MINIMUM :SCREEN :DEBUG)
+;;;; Specifics
+(:KP :ONE-LINER :SCREEN :DEBUG)
+(:DBIN :OFF :SCREEN :DEBUG)
+
+;;;; ---------------------------- Change History ----------------------------
+;;;; (Initials) (Date of change)           (Comment)

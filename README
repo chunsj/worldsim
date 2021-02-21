@@ -1,0 +1,209 @@
+Standalone world simulator for O-Plan / REA
+-------------------------------------------
+This directory is the home of a World simulator that runs as a separate
+Unix process.  "cd" to the "source" subdirectory when compiling WorldSim
+or building an executable image.
+
+The "support" code is shared with O-Plan.  At present somewhat more
+is included than is really needed.
+
+The rest of this file provides some help in finding your way around.
+Lisp files are typically listed using their source names (.lsp)
+even if object files might actually be used (e.g. when the file
+is loaded).
+
+
+Compiling and system building
+-----------------------------
+The descriptions in this section are relative the the "source"
+subdirectory.
+
+To see how the system is compiled or built, look first at:
+
+  Makefile
+  world-prep.lsp
+  world-systems.lsp
+
+Brief descriptions of these files can also be found under "Key files"
+below.
+
+The Makefile provides convenient ways to control the compilation of
+WorldSim source files and the building of an executable image.
+It is also used when making a WorldSim release.
+
+When compiling the sources or building an image, the world-prep.lsp
+file is always loaded first.  It performs some necessary "customization"
+of the host Common Lisp and loads the following files:
+
+  world-release-date.lsp
+  lisp-prep.lsp
+  support/defpackage.lsp           [if necessary]
+  support/defsys.lsp
+  world-systems.lsp
+
+Defsys.lsp provides the version of defsystem used to define the
+modules that make up WorldSim.  Defsys.lsp contains a description of
+this defsystem and the operations it provides.  The module definitions
+themselves are in the file world-systems.lsp.
+
+After world-prep.lsp has been loaded, WorldSim is compiled by calling
+(compile-system 'world) and built by:
+
+  (load-system 'world)
+  (world:save-world <image-name>)
+
+See the Makefile for the exact sequence of top-level commands for
+various cases.
+
+Compiling and building should be done in separate invocations of Lisp.
+The usual edit ... test sequence for Lucid Common Lisp is as follows:
+
+  1. Edit some files
+
+  2. Type "make lucid-compile-warnings"
+
+     Lisp will enter a "break loop" for each warning.  If you want to
+     remove the warning, there may be a continue option that will recompile
+     the file.  If so, edit the file and select that option.
+
+     "make lucid-compile" is similar but without the break-on-warnings.
+
+  3. Type "make lucid-build".  This should produce a world-image file.
+
+     Note that "make lucid-world" combines "make lucid-compile" and
+     "make lucid-build".  Each sub-make runs a fresh Lisp.
+
+  4. Test by using the test-world script.  It runs ./world-image
+     after setting up some environment.
+
+     By default .config files are taken from $WORLDDIR/lib,
+     but you can specify a particular file by using the -config
+     command-line argument or by setting the :config parameter 
+     in your world-init file.  See world-initsystem.lsp for the
+     details of .config file processing.
+
+     The default .config file is world-default.config.
+     The world-init in this directory currently does
+
+       (unless (get-parameter :config)
+         (set-parameter :config "world-small"))
+
+
+At run-time
+-----------
+When world-image runs, it calls the procedure world-top-level, 
+defined in world-toplevel.lsp.  See the comments in world-toplevel.lsp
+and world-services.lsp for an explanation of how things work.
+
+
+Key files
+---------
+Here are brief descriptions of the most important files.  Most of
+the O-Plan support code used by the World is not described, because
+it plays a relatively minor role.
+
+ Makefile
+
+    A Makefile that can be used to set the release date, to make a
+    release copy of the sources, to compile the World source code,
+    and to build an executable image.
+
+ lisp-prep.lsp
+
+    Code the adapts various Common Lisp implementations to our needs.
+    Loaded by world-prep.lsp.
+
+ support/
+
+    A directory that contains support code common to O-Plan and
+    the World.
+
+ support/ipc-inter-agent.lsp
+
+    Code used for running an O-Plan agent and processing the
+    "agent ready message" that the agent produces when it starts up.
+    The World uses only the code that _sends_ such a message;
+    but Common Lisp programs that wanted to run the World would
+    use the rest of it.
+
+ support/pseudo-process.lsp
+
+    The pseudo-process (pprocess) mechanism.  The standalone World
+    uses this for "primitive real time" and for several pprocesses.
+    See world-toplevel.lsp for a discussion.
+
+ support/sim-clock.lsp
+
+    Code for managing simulated time.  Defines the clock struct.
+    Also describes how such clocks work.
+
+ test-world
+
+    A shell script that execs ./world-image after performing any
+    required setup.  It's used for testing images just after they're
+    built and serves as a guide to the minimal setup required.
+
+ world-image
+
+    The default image name used by the Makefile.  When it exists, it
+    contains an executable World image.  It is normally run indirectly
+    by using a shell script such as test-world.
+
+ world-init
+
+    A file that will be loaded if the World is run with this directory
+    as the user's current directory.
+
+ world-initsystem.lsp
+
+    The World's version of the code that processes .config files.
+
+ world-ipc.lsp
+
+    The World's version of the O-Plan ipc code.  The main things it
+    provides are: an interface to some pseudo-process routines;
+    defmessage and releated routines; deep-copying (which may not
+    be needed); and ipc-run-program (which is an interface to various
+    Lisp-implementation-specific ways of running Unix programs).
+
+ world-package.lsp
+
+    Definition of the WORLD package.
+
+ world-prep.lsp
+
+    The file that is loaded first when compiling the source code or
+    building an executable image.  It loads world-release-date.lsp,
+    lisp-prep.lsp, and world-systems.lsp.  It also ensures that
+    defpackage and defsystem are defined and defines *world-version*.
+
+ world-release-date.lsp
+
+    A file that defines *world-release-date*.  "make rdate" writes
+    a new instance of this file that assigns the current date.
+
+ world-services.lsp
+
+    Code that performs the actual simulation (cf world-toplevel.lsp),
+    plus comments describing how things work.
+
+    This file is shared with O-Plan's internal World process.
+
+ world-systems.lsp
+
+    System definitions for all of the modules in the World simulator.
+
+ world-toplevel.lsp
+
+    The "main program" or top-level of the World, chiefly command-line
+    argument processing and initialization code, plus more comments
+    describing how things work.  (Cf world-servives.lsp.)
+
+ worldsim
+
+    A shell script for running WorldSim.
+
+ worldsim-remote
+
+    A shell script for running WorldSim on a specified machine.
+

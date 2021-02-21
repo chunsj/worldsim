@@ -1,0 +1,187 @@
+
+                 INSTALL for WorldSim version 1.0
+                 --------------------------------
+
+How to build and install WorldSim
+---------------------------------
+The procedure for building and installing WorldSim is fairly simple,
+but it is not completely automatic.  You should have:
+
+  1. A Sun running version 4.1.1 or 4.1.3 of SunOS and with
+     at least 40 megabytes of swap space.
+  2. Lucid Common Lisp (LCL) version 4.1
+
+There are several ways to set up LCL 4.1.  WorldSim has been tested
+only in the non-dbcs version and is incompatible with the ANSI-packages
+module.  It is likely that the dbcs (double-byte character set) version
+of LCL 4.1 will also work.
+
+In outline, you will have to:
+
+  1. Make a directory.
+  2. Unpack a compressed tar file.
+  3. Edit one line in a makefile.
+  4. Edit one line in a shell script.
+  5. Type "make all install".
+  6. Copy a script into a directory in your $PATH.
+  7. [Optional] Make, or otherwise obtain, the "xmenu" program.
+
+These steps are explained in detail below.
+
+WorldSim is distributed as a compressed tar file.  In this document,
+we'll use the name "worldsim.tar.Z" for this file, although it will
+actually have a different name such as "worldsim.24oct94.tar.Z".
+Substitute the actual name for "worldsim.tar.Z" in the commands
+described below.
+
+Step 1: Make a directory to contain the WorldSim files.
+
+Make a new, empty directory.  In this document, we'll assume the name
+is "/home/worldsim/1.0", but you can use any name you'd like.
+
+Step 2: Unpack the distribution.
+
+Put the compressed tar file in the directory created in step 1
+and "cd" to that directory.  Unpack the tar file by typing:
+
+   zcat worldsim.tar.Z | tar xpf -
+
+Most of the resulting files will be in subdirectories.  The most
+important subdirectory for the rest of this installation procedure
+is "source".  Most of the files needed to build WorldSim are in that
+subdirectory.
+
+Step 3: Edit source/Makefile.
+
+The makefile will use Lucid Common Lisp (LCL) to build WorldSim.
+However, the command that invokes LCL is different on different
+systems, so you have to edit the makefile to indicate what command
+to use.  Look for two lines near the beginning of source/Makefile
+that look like this:
+
+   # Edit the following line(s) to define commands for running Lisp.
+   Lucid = lucid4.1+clos
+
+Suppose your command for running LCL is "lisp".  Edit the second of
+the two lines to be:
+
+   Lucid = lisp
+
+Step 4: Edit bin/worldsim.
+
+The "worldsim" shell script will be used to run WorldSim.  It needs to
+set an environment variable, WORLDDIR, to be the name of the directory
+that contains the WorldSim files.  This is the directory created in
+Step 1.  Look for lines near the beginning of source/worldsim
+that look like this:
+
+   # Edit the following line for your site:
+
+   base_dir=/projects/worldsim/development/1.0
+
+The "base_dir=" line in the distributed version of the worldsim script
+may assign a different value than the one shown above; nonetheless,
+it is the line to edit.  Suppose you have placed the WorldSim files in
+/home/worldsim/1.0.  Edit the definition of "base_dir" to be:
+
+   base_dir=/home/worldsim/1.0
+
+Since the "worldsim" script is a "sh" script, the base_dir name cannot
+use the tilde-notation (as in "~worldsim").  That's why it says 
+"/home/worldsim" and not "~worldsim" above.
+
+Step 5: Build WorldSim.
+
+WorldSim is a Lisp program distributed as source.  Before WorldSim
+can be used, it is necessary to compile the source files, load them
+into Lisp, and save an executable image.  It is also necessary to
+move some files from the "source" subdirectory to the "bin" or "lib"
+subdirectories.  All of this can be accomplished by typing:
+
+   cd source
+   make all install
+
+If the "make all install" command completes successfully, type:
+
+   cd ..
+
+You should now be back in the main WorldSim directory.
+
+At this point, you should check that the following files exist and
+have execute permission:
+
+   bin/worldsim
+   bin/worldsim-remote
+
+   lib/world-image
+
+You should also check that the following files exist:
+
+   lib/monitor.def
+   lib/world-default.config
+   lib/world-small.config
+
+   lib/worlds
+   lib/worlds/micro-exec
+
+There may be some other ".config" files in "lib" as well as the 
+ones listed above, and there may be some other worlds in lib/worlds.
+
+Remember that the "bin" and "lib" directories are in the main WorldSim
+directory, not in "source".
+
+If you want, you can now start WorldSim by typing
+
+   bin/worldsim
+
+Step 6: Make WorldSim accessible to users.
+
+The goal is to establish a command, "worldsim" that can be used to run
+WorldSim.  One way to do this is to put a copy of (or link to) bin/worldsim
+in a directory that is in the $PATH of the users who will run WorldSim.  
+
+You may want to make bin/worldsim-remote available in a similar way.
+
+Step 7: Get "xmenu" to work.
+
+Xmenu is a small C program that can be run by WorldSim to display a
+menu.  It is used by some of the "worlds" distributed with WorldSim.
+
+WorldSim expects "xmenu" (or a link to "xmenu") to be in the "bin"
+subdirectory of the main WorldSim directory.  If you don't already
+have xmenu on your system, a version is supplied with WorldSim.
+To construct it, cd to the "xmenu" subdirectory of the WorldSim
+directory and type:
+
+  make clean
+  xmkmf
+  make
+
+The result should be an executable "xmenu" file.  To test it,
+type something like this:
+
+  ./xmenu a b c
+
+A small menu containing options a, b, and c should appear.  Select
+one with the mouse.  The one you select should be printed on the
+screen and xmenu should then exit.
+
+If it works, move it to the bin directory by
+
+  mv xmenu ../bin
+
+The version of xmenu supplied with WorldSim should work with X11 R4 or R5
+**if they are properly installed**.  It may not work with R6.
+
+
+What if something goes wrong?
+-----------------------------
+There are enough differences among Unix and Lisp setups that there
+are many things that might conceivably go wrong.  It's impossible to
+cover them all here.  If something goes wrong, you don't understand
+it, and you're not an experienced Lisp or Unix programmer, you should
+try find someone who is reasonably familiar with Lisp and Unix,
+because they may be able to see immediately what is wrong.
+
+
+For further help, contact the O-Plan team at oplan@ed.ac.uk.

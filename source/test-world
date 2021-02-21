@@ -1,0 +1,27 @@
+#!/bin/sh
+# File: test-world
+# SCCS Version: %W%
+# Contains: Run script sometimes used by developers
+# Author: Jeff Dalton
+# Created: November 1994
+# Updated: Mon Oct  9 03:36:41 1995 by Jeff Dalton
+# Release Version: %Y%
+# Copyright: (c) 1994, AIAI, University of Edinburgh
+# This material may be reproduced by or for the U.S. Government pursuant
+# to the copyright license under the clause at DFARS 252.227-7032
+# (June 1975) -- Rights in Technical Data and Computer Software (Foreign).
+#
+
+# Assumes the current directory is a WorldSim source (sub)directory
+# and that it contains a "world-image" file.
+
+export WORLDDIR WORLDTMPDIR
+
+WORLDDIR=`pwd`/..
+
+if [ -z "$WORLDTMPDIR" ]
+then
+    WORLDTMPDIR=/tmp
+fi
+
+exec ./world-image "$@"

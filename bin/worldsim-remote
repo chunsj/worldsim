@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# worldsim-remote host [command] arg*
+
+# Runs WorldSim remotely, using the specified command (which can be
+# any executable, including another script).  The command defaults
+# to "worldsim".  The first arg must begin with "-"; otherwise, it
+# will be interpreted as the command.
+
+# Note that there's a "cd" on the remote machine so that the current
+# working directory is carried across.
+
+default_command=worldsim
+
+if [ "$#" -lt 1 ]
+then
+    echo usage: worldsim-remote host [command] arg...
+    exit 1
+fi
+
+remote_host=$1
+shift
+
+# See if the user specified a command
+
+if [ "$#" -ge 1 ]
+then
+    case $1 in
+        -*) command=$default_command;;
+         *) command=$1; shift;;
+    esac
+else
+    command=$default_command
+fi
+
+# Try to get the right DISPLAY.  This is from rxterm.
+
+LOCAL=`hostname`
+
+if [ -z "$DISPLAY" ]
+then
+    DISPLAY="$LOCAL:0"
+else
+    DISPLAY=`echo $DISPLAY | sed "s/^unix:/$LOCAL:/"`
+    DISPLAY=`echo $DISPLAY | sed "s/^:/$LOCAL:/"`
+fi
+
+current_dir=`pwd`
+
+# Try to get the args separated correctly on the remote machine
+# by constructing a string in which each arg is in single quotes.
+# You might think "$@" would suffice, but it doesn't.
+allargs=""
+while [ $# -ne 0 ]; do allargs="$allargs '$1'"; shift; done
+
+# Here the only env var carried over is DISPLAY, but more can be added.
+
+/usr/ucb/rsh $remote_host \
+        cd $current_dir\; \
+	env DISPLAY="$DISPLAY" $command $allargs
